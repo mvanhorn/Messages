@@ -316,8 +316,7 @@ class ThreadActivity : SimpleActivity() {
 
     override fun onPause() {
         super.onPause()
-        saveDraftMessage()
-        bus?.post(Events.RefreshConversations())
+        saveDraftMessage(notifyConversationList = true)
         isActivityVisible = false
     }
 
@@ -341,13 +340,27 @@ class ThreadActivity : SimpleActivity() {
         bus?.unregister(this)
     }
 
-    private fun saveDraftMessage() {
+    private fun saveDraftMessage(notifyConversationList: Boolean = false) {
         val draftMessage = binding.messageHolder.threadTypeMessage.value
+        val hasAttachments = getAttachmentSelections().isNotEmpty()
+        val messageSnapshot = messages
+        val latestMessageDate = messageSnapshot.lastOrNull { !it.isScheduled }?.date
+            ?: messageSnapshot.lastOrNull()?.date
         ensureBackgroundThread {
-            if (draftMessage.isNotEmpty() && getAttachmentSelections().isEmpty()) {
-                saveSmsDraft(draftMessage, threadId)
-            } else {
-                deleteSmsDraft(threadId)
+            if (draftMessage.isNotEmpty() && !hasAttachments) {
+                saveSmsDraft(draftMessage, threadId)?.let { draftDate ->
+                    conversationsDB.updateDate(threadId, (draftDate / 1000L).toInt())
+                }
+            } else if (deleteSmsDraft(threadId)) {
+                if (latestMessageDate != null) {
+                    conversationsDB.updateDate(threadId, latestMessageDate)
+                } else {
+                    updateLastConversationMessage(threadId)
+                }
+            }
+
+            if (notifyConversationList) {
+                bus?.post(Events.RefreshConversations())
             }
         }
     }

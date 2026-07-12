@@ -76,7 +76,7 @@ import org.greenrobot.eventbus.ThreadMode
 
 class MainActivity : SimpleActivity() {
     override var isSearchBarEnabled = true
-    
+
     private val MAKE_DEFAULT_APP_REQUEST = 1
 
     private var storedTextColor = 0
@@ -674,6 +674,7 @@ class MainActivity : SimpleActivity() {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun refreshConversations(@Suppress("unused") event: Events.RefreshConversations) {
+        getOrCreateConversationsAdapter().updateDrafts()
         initMessenger()
     }
 

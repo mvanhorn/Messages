@@ -48,6 +48,9 @@ interface ConversationsDao {
     @Query("UPDATE conversations SET read = 0 WHERE thread_id = :threadId")
     fun markUnread(threadId: Long)
 
+    @Query("UPDATE conversations SET date = :date WHERE thread_id = :threadId")
+    fun updateDate(threadId: Long, date: Int)
+
     @Query("UPDATE conversations SET archived = 1 WHERE thread_id = :threadId")
     fun moveToArchive(threadId: Long)
 

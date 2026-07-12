@@ -7,7 +7,6 @@ import org.fossify.commons.dialogs.ConfirmationDialog
 import org.fossify.commons.extensions.areSystemAnimationsEnabled
 import org.fossify.commons.extensions.beGoneIf
 import org.fossify.commons.extensions.beVisibleIf
-import org.fossify.commons.extensions.getProperBackgroundColor
 import org.fossify.commons.extensions.getProperTextColor
 import org.fossify.commons.extensions.hideKeyboard
 import org.fossify.commons.extensions.viewBinding
@@ -167,6 +166,7 @@ class ArchivedConversationsActivity : SimpleActivity() {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun refreshConversations(@Suppress("unused") event: Events.RefreshConversations) {
+        getOrCreateConversationsAdapter().updateDrafts()
         loadArchivedConversations()
     }
 }

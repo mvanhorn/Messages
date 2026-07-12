@@ -887,7 +887,7 @@ fun Context.deleteConversation(threadId: Long) {
         config.removeCustomNotificationsByThreadId(threadId)
         notificationManager.deleteNotificationChannel(threadId.toString())
     }
-    if(shortcutHelper.getShortcut(threadId) != null) {
+    if (shortcutHelper.getShortcut(threadId) != null) {
         shortcutHelper.removeShortcutForThread(threadId)
     }
 }
@@ -1039,7 +1039,7 @@ fun Context.markThreadMessagesUnread(threadId: Long) {
         contentResolver.update(uri, contentValues, selection, selectionArgs)
     }
     conversationsDB.markUnread(threadId)
-} 
+}
 
 @SuppressLint("NewApi")
 fun Context.getThreadId(address: String): Long {
@@ -1152,27 +1152,30 @@ fun Context.getAllDrafts(): HashMap<Long, String> {
     return drafts
 }
 
-fun Context.saveSmsDraft(body: String, threadId: Long) {
+fun Context.saveSmsDraft(body: String, threadId: Long): Long? {
     val draft = Draft(
         threadId = threadId,
         body = body,
         date = System.currentTimeMillis()
     )
 
-    try {
+    return try {
         draftsDB.insertOrUpdate(draft)
+        draft.date
     } catch (e: Exception) {
         e.printStackTrace()
         showErrorToast(e)
+        null
     }
 }
 
-fun Context.deleteSmsDraft(threadId: Long) {
-    try {
-        draftsDB.delete(threadId)
+fun Context.deleteSmsDraft(threadId: Long): Boolean {
+    return try {
+        draftsDB.delete(threadId) > 0
     } catch (e: Exception) {
         e.printStackTrace()
         showErrorToast(e)
+        false
     }
 }
 
